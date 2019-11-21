@@ -1,37 +1,122 @@
 Xamarin.Forms.GoogleMaps Release Notes
 ----
-# 2.3.0-beta6
+
+# 3.3.0
+
+## New Features
+
+* PR#643 [iOS]Make iOS MapRenderer callbacks used for MapView protected
+* #654 [Android/iOS]Add ItemTemplateSelector
+* #663 [iOS]Support iOS Dark mode **REQUIRES Deployment target: 9.0+**
 
 ## Bug Fixes
 
-* #[Android]Fix Polygon, Polyline, Circle, Pin, GroundOverlays does not work
+* #657 [Android]Java.Lang.IllegalArgumentException: 'Unmanaged descriptor'
 
-# 2.3.0-beta5
+# 3.2.1
 
-## Bug Fixes
+## New Features
 
-* #373 [Android]Improve view initialization and uninitialization
-
-# 2.3.0-beta4
-
-## Bug Fixes
-
-* #40 [iOS]Fix bundle xxx@1x.png, xxx@2x.png, xxx@3x.png does not work for marker icon.
-
-# 2.3.0-beta3
+* PR#640 [Android]Make Android MapRenderer.NativeMap overridable
+* #443 [UWP]Added Polygon and Circle
 
 ## Bug Fixes
 
-* #431 [iOS]Fix doesn't work with Xamarin.Google.iOS.Maps 2.4.0+
+* #524, PR#642 [Android]Crash when using BitmapDescriptorFactory.FromView
 
-# 2.3.0-beta2
+# 3.2.0
+
+## New Features
+
+* #123, PR603 [Android/iOS]Add support Xamarin.Forms.GoogleMaps.Clustering by @mierzynskim
+
+# 3.1.0
+
+## New Features
+
+* #519 Add support ItemsSource and ItemTemplate for Pins 
+
+# 3.0.6
 
 ## Bug Fixes
 
-* #367 [iOS]Fix MyLocationEnabled doesn't work 
-* #421 [iOS/Android/UWP]Fix InitialCameraUpdate parsing failed
+* #609 [Android]Anchor is initialized when updating Pin
 
-# 2.3.0-beta1
+# 3.0.5
+
+## New Features
+
+* PR#572 [UWP]Allow pin changed event to collapse info windows
+* PR#567 [UWP]Add ability to provide xaml for pin
+
+## Bug Fixes
+
+* #573 [Android]Ground Overlay doesn't display custom image from View
+* PR#566 [UWP]Avoid deadlocks when using custom tile layer
+
+# 3.0.4
+
+## New Features
+
+* #555 Add support .NET Standard 1.0 to nuget package
+
+## Bug Fixes
+
+* #559 [iOS]MoveToRegion fails when longitude greater than 90 or less than -90
+
+# 3.0.3
+
+## Bug Fixes
+
+* #413 [iOS]Fix resets camera when device rotating
+
+# 3.0.2
+
+## New Features
+
+* #535 [Android]No longer need WriteExternalStorage permission
+
+## Bug Fixes
+
+* #413 [iOS]Fix resets camera when device rotating
+* #549 [iOS]InfoWindowLongClicked does not work
+
+# 3.0.1
+
+## Bug Fixes
+
+* #466 [Android]Fix memory leak when Map disposed
+* #413 [Android]Fix resets camera when device rotating
+
+# 3.0.0
+
+## New Features
+
+* #355 Support .NET Standard 2.0
+	* Now depends Xamarin.Forms 3.0.0.482510+
+	* [UWP]Now depends Windows 10 Fall Creators Update(build 16299)
+
+* PR#483 [Android]Update reference GooglePlayServices.Maps package to 60.1142.1
+* #452 [Android]Change MapRenderer.OnMapReady's accesibility from private to protected
+* #487 [Android/iOS]Add Map.Region property what can get correct screen corner latitude/longitude
+* #509 Now depends Xamarin.Forms 3.0.0.482510+
+* #499 Add TileLayer.ZIndex property
+* #497 [Android/iOS]Support Caching BitmapDescriptors(Android) or UIImages(iOS)
+
+## Bug Fixes
+
+* #452 [Android]Fix MapRenderer.OnMapReady accesibility
+* #517 [iOS]iOS 10.0+ native crash when setting a value to the Map.MapStyle property.
+* #491 [Android/iOS]Causes NotSupportedException when using stream via URL
+* #504 [iOS]Fix NullPointerException when Page popped
+
+# 2.3.1-beta1
+
+## New Features
+
+* #406 [Android]Add UiSettings.MapToolbarEnabled property
+
+# 2.3.0
 
 ## New Features
 
@@ -39,6 +124,12 @@ Xamarin.Forms.GoogleMaps Release Notes
 
 ## Bug Fixes
 
+* #[Android]Fix Polygon, Polyline, Circle, Pin, GroundOverlays does not work
+* #373 [Android]Improve view initialization and uninitialization
+* #40 [iOS]Fix bundle xxx@1x.png, xxx@2x.png, xxx@3x.png does not work for marker icon.
+* #431 [iOS]Fix doesn't work with Xamarin.Google.iOS.Maps 2.4.0+
+* #367 [iOS]Fix MyLocationEnabled doesn't work 
+* #421 [iOS/Android/UWP]Fix InitialCameraUpdate parsing failed
 * #40 [iOS]Fix icon size is bigger than Android when load from bundle or stream
 
 # 2.2.1

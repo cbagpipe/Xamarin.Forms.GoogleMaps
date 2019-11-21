@@ -1,4 +1,5 @@
-## ![](logo.png) Xamarin.Forms.GoogleMaps [![Build status](https://build.mobile.azure.com/v0.1/apps/99e6fb9e-fe8c-49df-b190-8aa1732a0ad2/branches/master/badge)](https://mobile.azure.com) [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/Xamarin-Forms-GoogleMaps/public)
+## ![logo](logo.png) Xamarin.Forms.GoogleMaps 
+![](https://img.shields.io/nuget/v/Xamarin.Forms.GoogleMaps.svg) ![](https://img.shields.io/nuget/dt/Xamarin.Forms.GoogleMaps.svg) [![Build status](https://build.appcenter.ms/v0.1/apps/99e6fb9e-fe8c-49df-b190-8aa1732a0ad2/branches/master/badge)](https://appcenter.ms) [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](http://gitter.im/Xamarin-Forms-GoogleMaps/public) [![donate/kyash](https://img.shields.io/badge/donate-kyash-orange.svg)](#寄付)
 
 [English README is here！](README.md)
 
@@ -127,6 +128,50 @@ protected override void OnLaunched(LaunchActivatedEventArgs e)
 
 にあります。
 
+## 採用事例
+
+Xamarin.Forms.GoogleMaps が使われているアプリを紹介します(他にもあったら [教えてください](https://github.com/amay077/Xamarin.Forms.GoogleMaps/issues/512))。
+
+<table>
+  <tr>
+    <td align="center">
+      <h3><a target="_blank" href="https://www.herenow.city/">HereNow</a></h3>
+      <img src="showcase_herenow.jpg" width="200" width="200" style="max-width:100%;">
+      <p>by <a target="_blank" href="https://www.cinra.co.jp/">CINRA, Inc.</a></p>
+    </td>
+    <td align="center">
+      <h3><a target="_new" href="https://www.citybee.lt/">CityBee</a></h3>
+      <img src="showcase_citybee.png" width="200" width="200" style="max-width:100%;">
+      <p>&nbsp;</p>
+    </td>
+    <td align="center">
+      <h3><a target="_new" href="https://itunes.apple.com/tr/app/rentacarss-ara%C3%A7-takip/id1276280125">Rentacarss Araç Takip</a></h3>
+      <img src="showcase_rentacarss.jpg" width="200" width="200" style="max-width:100%;">
+      <p>&nbsp;</p>
+    </td>
+    <td align="center">
+      <h3><a target="_new" href="https://www.uspace.city/">UPSPACE</a></h3>
+      <img src="showcase_upspace.png" width="200" width="200" style="max-width:100%;">
+      <p>&nbsp;</p>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <h3><a target="_blank" href="https://itunes.apple.com/us/app/transantiagomaster/id541341697?mt=8">TransantiagoMaster</a></h3>
+      <img src="https://user-images.githubusercontent.com/1848210/47026824-b3d31c00-d13c-11e8-926a-d7e68403e856.png" width="200" width="200" style="max-width:100%;">
+    </td>
+    <td align="center">
+      <h3><a target="_blank" href="https://play.google.com/store/apps/details?id=jp.co.Shin_yosha.NowStation">NowStation</a></h3>
+      <img src="https://user-images.githubusercontent.com/40679902/52461171-30d54600-2bb1-11e9-9568-36d4f3826815.png" width="200" width="200" style="max-width:100%;">
+      <p>by <a target="_blank" href="http://www.shin-yosha.co.jp/">新陽社</a></p>
+    </td>
+    <td align="center">
+    </td>
+    <td align="center">
+    </td>
+  </tr>    
+</table>
+
 ## リリースノーツ
 
 [Releases](https://github.com/amay077/Xamarin.Forms.GoogleMaps/releases) または [RELEASE_NOTES](RELEASE_NOTES.md) を見てください。
@@ -152,8 +197,22 @@ Windows 10 UWP 対応は「とりあえず」残しました。
 
 開発に参加して頂ける方は、[コントリビューション ガイドライン](CONTRIBUTING-ja.md) を読んで下さい。
 
+## 寄付
+
+Xamarin.Forms.GoogleMaps 開発の継続のため、寄付を募集しています。
+
+**Gumroad**
+
+* [Gumroad](https://gum.co/xfgmdnate)
+
+**Kyash**
+
+![kyash](kyash_qr.jpg)
+
+あなたの寄付で開発者のモチベーションが上がります、どうかよろしくおねがいします :sushi:
+
 ## ライセンス
 
-[LICENSE](LICENSE) をみて下さい。
+[LICENSE](LICENSE.txt) をみて下さい。
 
 logo.png by [alecive](http://www.iconarchive.com/show/flatwoken-icons-by-alecive.html) - [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed)

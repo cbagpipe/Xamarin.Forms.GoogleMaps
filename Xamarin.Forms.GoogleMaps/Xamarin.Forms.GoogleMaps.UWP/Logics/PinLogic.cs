@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,6 +37,31 @@ namespace Xamarin.Forms.GoogleMaps.Logics.UWP
                     pin.Tapped -= Pushpin_Tapped;
                     pin.Holding -= Pushpin_Holding;
                     pin.InfoWindowClicked -= PushpinOnInfoWindowClicked;
+                }
+            }
+        }
+        
+        internal override void OnMapPropertyChanged(PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == Map.SelectedPinProperty.PropertyName)
+            {
+                var pin = Map.SelectedPin;
+                if (pin != null)
+                {
+                    foreach (var outerItem in GetItems(Map).Where(x => !ReferenceEquals(x,pin)))
+                    {
+                        if ((outerItem.NativeObject as PushPin).DetailsView.Visibility == Windows.UI.Xaml.Visibility.Visible)
+                        {
+                            (outerItem.NativeObject as PushPin).DetailsView.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                        }
+                    }
+
+
+                    var pushPin = (pin.NativeObject as PushPin);
+                    if (pushPin.DetailsView.Visibility != Windows.UI.Xaml.Visibility.Visible)
+                    {
+                        pushPin.DetailsView.Visibility = Windows.UI.Xaml.Visibility.Visible;
+                    }             
                 }
             }
         }

@@ -9,11 +9,22 @@ using Xamarin.Forms.GoogleMaps.Internals;
 using Xamarin.Forms.GoogleMaps.Helpers;
 using System.Threading.Tasks;
 using Xamarin.Forms.GoogleMaps.Extensions;
+using System.ComponentModel;
+using System.Windows.Input;
 
 namespace Xamarin.Forms.GoogleMaps
 {
     public class Map : View, IEnumerable<Pin>
     {
+        public static readonly BindableProperty ItemsSourceProperty = BindableProperty.Create(nameof(IEnumerable), typeof(IEnumerable), typeof(Map), default(IEnumerable),
+            propertyChanged: (b, o, n) => ((Map)b).OnItemsSourcePropertyChanged((IEnumerable)o, (IEnumerable)n));
+
+        public static readonly BindableProperty ItemTemplateProperty = BindableProperty.Create(nameof(ItemTemplate), typeof(DataTemplate), typeof(Map), default(DataTemplate),
+            propertyChanged: (b, o, n) => ((Map)b).OnItemTemplatePropertyChanged((DataTemplate)o, (DataTemplate)n));
+
+        public static readonly BindableProperty ItemTemplateSelectorProperty = BindableProperty.Create(nameof(ItemTemplateSelector), typeof(DataTemplateSelector), typeof(Map), default(DataTemplateSelector),
+            propertyChanged: (b, o, n) => ((Map)b).OnItemTemplateSelectorPropertyChanged());
+
         public static readonly BindableProperty MapTypeProperty = BindableProperty.Create(nameof(MapType), typeof(MapType), typeof(Map), default(MapType));
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -88,6 +99,14 @@ namespace Xamarin.Forms.GoogleMaps
         internal Action<TakeSnapshotMessage> OnSnapshot{ get; set; }
 
         MapSpan _visibleRegion;
+        MapRegion _region;
+
+        //// Simone Marra
+        //public static Position _TopLeft = new Position();
+        //public static Position _TopRight = new Position();
+        //public static Position _BottomLeft = new Position();
+        //public static Position _BottomRight = new Position();
+        //// End Simone Marra
 
         public Map()
         {
@@ -184,6 +203,24 @@ namespace Xamarin.Forms.GoogleMaps
             set { SetValue(MapStyleProperty, value); }
         }
 
+        public IEnumerable ItemsSource
+        {
+            get => (IEnumerable)GetValue(ItemsSourceProperty);
+            set => SetValue(ItemsSourceProperty, value);
+        }
+
+        public DataTemplate ItemTemplate
+        {
+            get => (DataTemplate)GetValue(ItemTemplateProperty);
+            set => SetValue(ItemTemplateProperty, value);
+        }
+
+        public DataTemplateSelector ItemTemplateSelector
+        {
+            get { return (DataTemplateSelector)GetValue(ItemTemplateSelectorProperty); }
+            set { SetValue(ItemTemplateSelectorProperty, value); }
+        }
+
         public IList<Pin> Pins
         {
             get { return _pins; }
@@ -214,6 +251,7 @@ namespace Xamarin.Forms.GoogleMaps
             get { return _groundOverlays; }
         }
 
+        [Obsolete("Please use Map.Region instead of this")]
         public MapSpan VisibleRegion
         {
             get { return _visibleRegion; }
@@ -225,6 +263,21 @@ namespace Xamarin.Forms.GoogleMaps
                     throw new ArgumentNullException(nameof(value));
                 OnPropertyChanging();
                 _visibleRegion = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public MapRegion Region
+        {
+            get { return _region; }
+            internal set
+            {
+                if (_region == value)
+                    return;
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value));
+                OnPropertyChanging();
+                _region = value;
                 OnPropertyChanged();
             }
         }
@@ -327,6 +380,12 @@ namespace Xamarin.Forms.GoogleMaps
             SelectedPinChanged?.Invoke(this, new SelectedPinChangedEventArgs(selectedPin));
         }
 
+        void OnItemTemplateSelectorPropertyChanged()
+        {
+            _pins.Clear();
+            CreatePinItems();
+        }
+
         internal bool SendPinClicked(Pin pin)
         {
             var args = new PinClickedEventArgs(pin);
@@ -416,6 +475,104 @@ namespace Xamarin.Forms.GoogleMaps
         void SendTakeSnapshot(TakeSnapshotMessage message)
         {
             OnSnapshot?.Invoke(message);
+        }
+
+        void OnItemsSourcePropertyChanged(IEnumerable oldItemsSource, IEnumerable newItemsSource)
+        {
+            if (oldItemsSource is INotifyCollectionChanged ncc)
+            {
+                ncc.CollectionChanged -= OnItemsSourceCollectionChanged;
+            }
+
+            if (newItemsSource is INotifyCollectionChanged ncc1)
+            {
+                ncc1.CollectionChanged += OnItemsSourceCollectionChanged;
+            }
+
+            _pins.Clear();
+            CreatePinItems();
+        }
+
+        void OnItemTemplatePropertyChanged(DataTemplate oldItemTemplate, DataTemplate newItemTemplate)
+        {
+            if (newItemTemplate is DataTemplateSelector)
+            {
+                throw new NotSupportedException($"You are using an instance of {nameof(DataTemplateSelector)} to set the {nameof(Map)}.{ItemTemplateProperty.PropertyName} property. Use an instance of a {nameof(DataTemplate)} property instead to set an item template.");
+            }
+
+            _pins.Clear();
+            CreatePinItems();
+        }
+
+        void OnItemsSourceCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    if (e.NewStartingIndex == -1)
+                        goto case NotifyCollectionChangedAction.Reset;
+                    foreach (object item in e.NewItems)
+                        CreatePin(item);
+                    break;
+                case NotifyCollectionChangedAction.Move:
+                    if (e.OldStartingIndex == -1 || e.NewStartingIndex == -1)
+                        goto case NotifyCollectionChangedAction.Reset;
+                    // Not tracking order
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    if (e.OldStartingIndex == -1)
+                        goto case NotifyCollectionChangedAction.Reset;
+                    foreach (object item in e.OldItems)
+                        RemovePin(item);
+                    break;
+                case NotifyCollectionChangedAction.Replace:
+                    if (e.OldStartingIndex == -1)
+                        goto case NotifyCollectionChangedAction.Reset;
+                    foreach (object item in e.OldItems)
+                        RemovePin(item);
+                    foreach (object item in e.NewItems)
+                        CreatePin(item);
+                    break;
+                case NotifyCollectionChangedAction.Reset:
+                    _pins.Clear();
+                    break;
+            }
+        }
+
+        void CreatePinItems()
+        {
+            if (ItemsSource == null || (ItemTemplate == null && ItemTemplateSelector == null))
+            {
+                return;
+            }
+
+            foreach (object item in ItemsSource)
+            {
+                CreatePin(item);
+            }
+        }
+
+        void CreatePin(object newItem)
+        {
+            DataTemplate itemTemplate = ItemTemplate;
+            if (itemTemplate == null)
+                itemTemplate = ItemTemplateSelector?.SelectTemplate(newItem, this);
+
+            if (itemTemplate == null)
+                return;
+
+            var pin = (Pin)itemTemplate.CreateContent();
+            pin.BindingContext = newItem;
+            _pins.Add(pin);
+        }
+
+        void RemovePin(object itemToRemove)
+        {
+            Pin pinToRemove = _pins.FirstOrDefault(pin => pin.BindingContext?.Equals(itemToRemove) == true);
+            if (pinToRemove != null)
+            {
+                _pins.Remove(pinToRemove);
+            }
         }
     }
 }

@@ -43,3 +43,10 @@ Thumbs.db
 *.nupkg
 *.lock.json
 .idea/
+UserPrefs.xml
+
+#Visual Studio
+.vs/
+
+#Xamarin
+*.designer.cs

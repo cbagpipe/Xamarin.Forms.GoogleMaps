@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using Android.Gms.Maps;
@@ -8,6 +9,7 @@ using Java.Lang;
 using Xamarin.Forms.Platform.Android;
 using Math = System.Math;
 using Android.App;
+using Android.Content;
 using Android.Graphics;
 using Xamarin.Forms.GoogleMaps.Logics.Android;
 using Xamarin.Forms.GoogleMaps.Logics;
@@ -26,30 +28,33 @@ namespace Xamarin.Forms.GoogleMaps.Android
     {
         readonly CameraLogic _cameraLogic;
         readonly UiSettingsLogic _uiSettingsLogic = new UiSettingsLogic();
-        readonly BaseLogic<GoogleMap>[] _logics;
+        
+        internal IList<BaseLogic<GoogleMap>> Logics { get; }
 
-        public MapRenderer() : base()
+        public MapRenderer(Context context) : base(context)
         {
             _cameraLogic = new CameraLogic(UpdateVisibleRegion);
 
             AutoPackage = false;
-            _logics = new BaseLogic<GoogleMap>[]
+            Logics = new List<BaseLogic<GoogleMap>>
             {
                 new PolylineLogic(),
                 new PolygonLogic(),
                 new CircleLogic(),
-                new PinLogic(OnMarkerCreating, OnMarkerCreated, OnMarkerDeleting, OnMarkerDeleted),
+                new PinLogic(context, Config.BitmapDescriptorFactory, 
+                    OnMarkerCreating, OnMarkerCreated, OnMarkerDeleting, OnMarkerDeleted),
                 new TileLayerLogic(),
-                new GroundOverlayLogic()
+                new GroundOverlayLogic(context, Config.BitmapDescriptorFactory)
             };
         }
-
-        public MapRenderer(IntPtr javaReference, global::Android.Runtime.JniHandleOwnership transfer) : this() { }
 
         static Bundle s_bundle;
         internal static Bundle Bundle { set { s_bundle = value; } }
 
-        protected GoogleMap NativeMap { get; private set; }
+        protected internal static PlatformConfig Config { protected get; set; }
+
+        // ReSharper disable once MemberCanBePrivate.Global
+        protected virtual GoogleMap NativeMap { get; private set; }
 
         private Map map;
         protected Map Map
@@ -131,7 +136,7 @@ namespace Xamarin.Forms.GoogleMaps.Android
             {
                 _scaledDensity = activity.GetScaledDensity();
                 _cameraLogic.ScaledDensity = _scaledDensity;
-                foreach (var logic in _logics)
+                foreach (var logic in Logics)
                 {
                     logic.ScaledDensity = _scaledDensity;
                 }
@@ -140,7 +145,7 @@ namespace Xamarin.Forms.GoogleMaps.Android
             Map = e.NewElement;
             NativeMap = await MapView.GetGoogleMapAsync();
 
-            foreach (var logic in _logics)
+            foreach (var logic in Logics)
             {
                 logic.Register(oldNativeMap, oldMap, NativeMap, Map);
                 logic.ScaledDensity = _scaledDensity;
@@ -160,7 +165,7 @@ namespace Xamarin.Forms.GoogleMaps.Android
             }));
         }
 
-        private void OnMapReady(GoogleMap nativeMap, Map map)
+        protected virtual void OnMapReady(GoogleMap nativeMap, Map map)
         {
             if (nativeMap != null)
             {
@@ -213,7 +218,6 @@ namespace Xamarin.Forms.GoogleMaps.Android
             else if (changed && NativeMap != null)
             {
                 UpdateVisibleRegion(NativeMap.CameraPosition.Target);
-                _cameraLogic.MoveCamera(Map.InitialCameraUpdate);
             }
         }
 
@@ -221,7 +225,7 @@ namespace Xamarin.Forms.GoogleMaps.Android
         {
             _cameraLogic.MoveCamera(Map.InitialCameraUpdate);
 
-            foreach (var logic in _logics)
+            foreach (var logic in Logics)
             {
                 if (logic.Map != null)
                 {
@@ -294,7 +298,7 @@ namespace Xamarin.Forms.GoogleMaps.Android
                 UpdateMapStyle();
             }
 
-            foreach (var logic in _logics)
+            foreach (var logic in Logics)
             {
                 logic.OnMapPropertyChanged(e);
             }
@@ -302,8 +306,10 @@ namespace Xamarin.Forms.GoogleMaps.Android
 
         private void UpdateIsShowingUser(bool? initialMyLocationButtonEnabled = null)
         {
+#pragma warning disable 618
             NativeMap.MyLocationEnabled = Map.IsShowingUser;
             NativeMap.UiSettings.MyLocationButtonEnabled = initialMyLocationButtonEnabled ?? Map.IsShowingUser;
+#pragma warning restore 618
         }
 
         private void UpdateMyLocationEnabled()
@@ -313,20 +319,26 @@ namespace Xamarin.Forms.GoogleMaps.Android
 
         private void UpdateHasScrollEnabled(bool? initialScrollGesturesEnabled = null)
         {
+#pragma warning disable 618
             NativeMap.UiSettings.ScrollGesturesEnabled = initialScrollGesturesEnabled ?? Map.HasScrollEnabled;
+#pragma warning restore 618
         }
 
         private void UpdateHasZoomEnabled(
             bool? initialZoomControlsEnabled = null, 
             bool? initialZoomGesturesEnabled = null)
         {
+#pragma warning disable 618
             NativeMap.UiSettings.ZoomControlsEnabled = initialZoomControlsEnabled ?? Map.HasZoomEnabled;
             NativeMap.UiSettings.ZoomGesturesEnabled = initialZoomGesturesEnabled ?? Map.HasZoomEnabled;
+#pragma warning restore 618
         }
 
         private void UpdateHasRotationEnabled(bool? initialRotateGesturesEnabled = null)
         {
+#pragma warning disable 618
             NativeMap.UiSettings.RotateGesturesEnabled = initialRotateGesturesEnabled ?? Map.HasRotationEnabled;
+#pragma warning restore 618
         }
 
         private void UpdateIsTrafficEnabled()
@@ -494,7 +506,7 @@ namespace Xamarin.Forms.GoogleMaps.Android
                 map.OnSnapshot -= OnSnapshot;
                 _cameraLogic.Unregister();
 
-                foreach (var logic in _logics)
+                foreach (var logic in Logics)
                 {
                     logic.Unregister(nativeMap, map);
                 }
@@ -521,6 +533,14 @@ namespace Xamarin.Forms.GoogleMaps.Android
             {
                 _disposed = true;
                 Uninitialize(NativeMap, Map);
+
+                if (NativeMap != null)
+                {
+                    NativeMap.Dispose();
+                    NativeMap = null;
+                }
+
+                (Control as MapView)?.OnDestroy();
             }
 
             base.Dispose(disposing);
